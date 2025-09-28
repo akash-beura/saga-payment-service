@@ -1,13 +1,15 @@
-package com.akash.paymentservice.event.consumer;
+package com.akash.paymentservice.event.listener;
 
-import com.akash.paymentservice.event.dto.order.OrderCreatedEvent;
+import com.akash.events.dto.OrderCreatedEvent;
 import com.akash.paymentservice.service.PaymentService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.MDC;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -23,13 +25,20 @@ public class OrderConsumer {
             groupId = "order-processing-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
-    public void consume(OrderCreatedEvent orderCreatedEvent) {
+    public void consume(ConsumerRecord<String, OrderCreatedEvent> record) {
+        String correlationId = null;
+        if (record.headers().lastHeader("x-correlation-id") != null) {
+            correlationId = new String(record.headers()
+                    .lastHeader("x-correlation-id")
+                    .value(), StandardCharsets.UTF_8);
+        }
         try {
+            MDC.put("x-correlation-id", correlationId);
             HashMap<String, String> mdcMap = new HashMap<>();
             mdcMap.put("x-correlation-id", UUID.randomUUID().toString());
             MDC.setContextMap(mdcMap);
-            log.info("Order created event received: {}", orderCreatedEvent);
-            paymentService.processPayment(orderCreatedEvent);
+            log.info("Order created event received: {}", record.value());
+            paymentService.processPayment(record.value());
             log.info("Order created event processed");
         } finally {
             MDC.clear();

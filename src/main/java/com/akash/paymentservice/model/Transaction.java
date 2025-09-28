@@ -1,6 +1,6 @@
 package com.akash.paymentservice.model;
 
-import com.akash.paymentservice.event.dto.enums.PaymentMode;
+import com.akash.events.dto.enums.PaymentMode;
 import com.akash.paymentservice.model.enums.PaymentStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

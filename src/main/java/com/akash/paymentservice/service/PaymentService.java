@@ -1,6 +1,6 @@
 package com.akash.paymentservice.service;
 
-import com.akash.paymentservice.event.dto.order.OrderCreatedEvent;
+import com.akash.events.dto.OrderCreatedEvent;
 import com.akash.paymentservice.model.Transaction;
 import com.akash.paymentservice.model.enums.PaymentStatus;
 import com.akash.paymentservice.repository.TransactionRepository;
@@ -22,6 +22,7 @@ public class PaymentService {
     public void processPayment(OrderCreatedEvent orderCreatedEvent) {
         Transaction transaction = Transaction.builder()
                 .transactionId(UUID.randomUUID())
+                .orderId(orderCreatedEvent.getOrderId())
                 .amount(orderCreatedEvent.getAmount())
                 .userId(orderCreatedEvent.getUserId())
                 .initiatedAt(LocalDateTime.now())

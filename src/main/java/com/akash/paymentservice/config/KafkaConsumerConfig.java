@@ -1,6 +1,6 @@
 package com.akash.paymentservice.config;
 
-import com.akash.paymentservice.event.dto.order.OrderCreatedEvent;
+import com.akash.events.dto.OrderCreatedEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
