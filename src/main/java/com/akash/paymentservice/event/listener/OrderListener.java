@@ -2,6 +2,7 @@ package com.akash.paymentservice.event.listener;
 
 import com.akash.dto.OrderCreatedEvent;
 import com.akash.paymentservice.service.PaymentService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -21,13 +22,14 @@ public class OrderListener {
     @KafkaListener(
             topics = "ORDER_CREATED_TOPIC",
             groupId = "order-processing-group",
-            containerFactory = "kafkaListenerContainerFactory"
+            containerFactory = "orderCreatedKafkaListenerContainerFactory"
     )
     public void consume(ConsumerRecord<String, OrderCreatedEvent> record) {
         handleMDC(record);
         try {
 
             log.info("Order created event received: {}", record.value());
+            ObjectMapper mapper = new ObjectMapper();
             paymentService.processPayment(record.value());
             log.info("Order created event processed");
         } finally {

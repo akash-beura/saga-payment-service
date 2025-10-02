@@ -4,6 +4,7 @@ package com.akash.paymentservice.config;
 import com.akash.dto.OrderCreatedEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -16,13 +17,19 @@ import java.util.Map;
 @Configuration
 public class KafkaConsumerConfig {
 
+    @Value("${kafka.bootstrap-servers:localhost:9092}")
+    private String bootstrapServers;
+
+    @Value("${kafka.consumer.group-id:default-group}")
+    private String groupId;
+
     private <T> ConsumerFactory<String, T> consumerFactory(Class<T> clazz) {
         JsonDeserializer<T> deserializer = new JsonDeserializer<>(clazz);
-        deserializer.addTrustedPackages("com.akash.events.dto.*");
+        deserializer.addTrustedPackages("com.akash.dto.*");
         return new DefaultKafkaConsumerFactory<>(
                 Map.of(
-                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "${kafka.bootstrap-servers}",
-                        ConsumerConfig.GROUP_ID_CONFIG, "${kafka.consumer.group-id}",
+                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                        ConsumerConfig.GROUP_ID_CONFIG, groupId,
                         ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
                         ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer
                 ),
