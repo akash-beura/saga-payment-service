@@ -15,7 +15,7 @@ import java.util.UUID;
 @Component
 @Slf4j
 @AllArgsConstructor
-public class PaymentProducer {
+public class PaymentEventPublisher {
 
     private final KafkaTemplate<String, PaymentCompletionEvent> kafkaTemplate;
     private static final String CORRELATION_ID_HEADER = "x-correlation-id";

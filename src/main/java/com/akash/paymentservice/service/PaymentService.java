@@ -3,7 +3,7 @@ package com.akash.paymentservice.service;
 import com.akash.events.dto.OrderCreatedEvent;
 import com.akash.events.dto.PaymentCompletionEvent;
 import com.akash.events.dto.enums.PaymentStatus;
-import com.akash.paymentservice.event.producer.PaymentProducer;
+import com.akash.paymentservice.event.producer.PaymentEventPublisher;
 import com.akash.paymentservice.exception.business.PaymentFailedException;
 import com.akash.paymentservice.model.Transaction;
 import com.akash.paymentservice.model.enums.TransactionStatus;
@@ -20,7 +20,7 @@ public class PaymentService {
 
     private final TransactionRepository transactionRepository;
     private final PaymentProcessorService paymentProcessorService;
-    private final PaymentProducer paymentProducer;
+    private final PaymentEventPublisher paymentEventPublisher;
 
     public void processPayment(OrderCreatedEvent orderCreatedEvent) {
         Transaction transaction = Transaction.builder()
@@ -38,13 +38,13 @@ public class PaymentService {
                     transaction.getAmount(), orderCreatedEvent.getPaymentMode());
             transaction.setStatus(TransactionStatus.COMPLETED);
             transaction.setCompletedAt(LocalDateTime.now());
-            paymentProducer.sendPaymentCompletionEvent(PaymentCompletionEvent.builder()
+            paymentEventPublisher.sendPaymentCompletionEvent(PaymentCompletionEvent.builder()
                     .paymentStatus(PaymentStatus.SUCCESS)
                     .build());
         } catch (PaymentFailedException ex) {
             transaction.setStatus(TransactionStatus.FAILED);
             transaction.setCompletedAt(LocalDateTime.now());
-            paymentProducer.sendPaymentCompletionEvent(PaymentCompletionEvent.builder()
+            paymentEventPublisher.sendPaymentCompletionEvent(PaymentCompletionEvent.builder()
                     .paymentStatus(PaymentStatus.FAILED)
                     .build());
         }

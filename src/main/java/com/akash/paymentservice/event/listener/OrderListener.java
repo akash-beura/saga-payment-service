@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 @Component
 @AllArgsConstructor
-public class OrderConsumer {
+public class OrderListener {
 
     private final PaymentService paymentService;
 
