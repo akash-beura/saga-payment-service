@@ -10,8 +10,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.UUID;
 
 @Slf4j
 @Component
@@ -34,9 +32,6 @@ public class OrderConsumer {
         }
         try {
             MDC.put("x-correlation-id", correlationId);
-            HashMap<String, String> mdcMap = new HashMap<>();
-            mdcMap.put("x-correlation-id", UUID.randomUUID().toString());
-            MDC.setContextMap(mdcMap);
             log.info("Order created event received: {}", record.value());
             paymentService.processPayment(record.value());
             log.info("Order created event processed");
