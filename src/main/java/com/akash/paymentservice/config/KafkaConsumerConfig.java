@@ -1,6 +1,6 @@
+// KafkaConsumerConfig.java
 package com.akash.paymentservice.config;
 
-import com.akash.events.dto.OrderCreatedEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -15,12 +15,9 @@ import java.util.Map;
 @Configuration
 public class KafkaConsumerConfig {
 
-    @Bean
-    public ConsumerFactory<String, OrderCreatedEvent> consumerFactory() {
-        JsonDeserializer<OrderCreatedEvent> deserializer =
-                new JsonDeserializer<>(OrderCreatedEvent.class);
+    private <T> ConsumerFactory<String, T> consumerFactory(Class<T> clazz) {
+        JsonDeserializer<T> deserializer = new JsonDeserializer<>(clazz);
         deserializer.addTrustedPackages("com.akash.events.dto.*");
-
         return new DefaultKafkaConsumerFactory<>(
                 Map.of(
                         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "${kafka.bootstrap-servers}",
@@ -32,12 +29,20 @@ public class KafkaConsumerConfig {
         );
     }
 
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, OrderCreatedEvent> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, OrderCreatedEvent> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
-        factory.setConcurrency(3); // run 3 consumers in parallel
+    private <T> ConcurrentKafkaListenerContainerFactory<String, T> kafkaListenerContainerFactory(Class<T> clazz) {
+        ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory(clazz));
+        factory.setConcurrency(3);
         return factory;
     }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, com.akash.events.dto.OrderCreatedEvent> orderCreatedKafkaListenerContainerFactory() {
+        return kafkaListenerContainerFactory(com.akash.events.dto.OrderCreatedEvent.class);
+    }
+    // Uncomment and modify the following bean definitions as needed for other event types
+   /* @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, com.akash.events.dto.XYZEvent> xyzKafkaListenerContainerFactory() {
+        return kafkaListenerContainerFactory(com.akash.events.dto.XYZEvent.class);
+    } */
 }
