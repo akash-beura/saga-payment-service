@@ -1,7 +1,7 @@
 package com.akash.paymentservice.event.producer;
 
-import com.akash.events.dto.PaymentCompletionEvent;
-import com.akash.events.dto.enums.PaymentStatus;
+import com.akash.dto.PaymentCompletionEvent;
+import com.akash.dto.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;

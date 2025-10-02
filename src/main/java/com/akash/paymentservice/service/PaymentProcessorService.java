@@ -1,6 +1,6 @@
 package com.akash.paymentservice.service;
 
-import com.akash.events.dto.enums.PaymentMode;
+import com.akash.dto.enums.PaymentMode;
 import com.akash.paymentservice.processor.PaymentStrategy;
 import org.springframework.stereotype.Component;
 

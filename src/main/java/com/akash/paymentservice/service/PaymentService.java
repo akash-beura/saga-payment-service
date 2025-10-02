@@ -1,8 +1,8 @@
 package com.akash.paymentservice.service;
 
-import com.akash.events.dto.OrderCreatedEvent;
-import com.akash.events.dto.PaymentCompletionEvent;
-import com.akash.events.dto.enums.PaymentStatus;
+import com.akash.dto.OrderCreatedEvent;
+import com.akash.dto.PaymentCompletionEvent;
+import com.akash.dto.enums.PaymentStatus;
 import com.akash.paymentservice.event.producer.PaymentEventPublisher;
 import com.akash.paymentservice.exception.business.PaymentFailedException;
 import com.akash.paymentservice.model.Transaction;

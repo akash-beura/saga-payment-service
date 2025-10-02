@@ -1,6 +1,7 @@
 // KafkaConsumerConfig.java
 package com.akash.paymentservice.config;
 
+import com.akash.dto.OrderCreatedEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -37,8 +38,8 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, com.akash.events.dto.OrderCreatedEvent> orderCreatedKafkaListenerContainerFactory() {
-        return kafkaListenerContainerFactory(com.akash.events.dto.OrderCreatedEvent.class);
+    public ConcurrentKafkaListenerContainerFactory<String, OrderCreatedEvent> orderCreatedKafkaListenerContainerFactory() {
+        return kafkaListenerContainerFactory(OrderCreatedEvent.class);
     }
     // Uncomment and modify the following bean definitions as needed for other event types
    /* @Bean

@@ -1,6 +1,6 @@
 package com.akash.paymentservice.event.listener;
 
-import com.akash.events.dto.OrderCreatedEvent;
+import com.akash.dto.OrderCreatedEvent;
 import com.akash.paymentservice.service.PaymentService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class OrderListener {
     private final PaymentService paymentService;
 
     @KafkaListener(
-            topics = "order_created_event",
+            topics = "ORDER_CREATED_TOPIC",
             groupId = "order-processing-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
