@@ -19,17 +19,16 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, OrderCreatedEvent> consumerFactory() {
         JsonDeserializer<OrderCreatedEvent> deserializer =
                 new JsonDeserializer<>(OrderCreatedEvent.class);
-        deserializer.addTrustedPackages("*");
+        deserializer.addTrustedPackages("com.akash.events.dto.*");
 
         return new DefaultKafkaConsumerFactory<>(
                 Map.of(
-                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092",
-                        ConsumerConfig.GROUP_ID_CONFIG, "order-processing-group",
+                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "${kafka.bootstrap-servers}",
+                        ConsumerConfig.GROUP_ID_CONFIG, "${kafka.consumer.group-id}",
                         ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
                         ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer
                 ),
-                new StringDeserializer(),
-                deserializer
+                new StringDeserializer(), deserializer
         );
     }
 
