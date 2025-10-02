@@ -37,30 +37,29 @@ public class PaymentService {
                 .paymentMode(orderCreatedEvent.getPaymentMode())
                 .build();
         transactionRepository.save(transaction);
-        PaymentStatus[] paymentStatus = new PaymentStatus[1];
+        PaymentCompletionEvent.PaymentCompletionEventBuilder builder = PaymentCompletionEvent.builder();
+        builder.transactionId(transaction.getTransactionId().toString());
+        builder.orderId(orderCreatedEvent.getOrderId());
         try {
             paymentProcessorService.processPayment(transaction.getTransactionId(),
                     transaction.getAmount(), orderCreatedEvent.getPaymentMode());
             transaction.setStatus(TransactionStatus.COMPLETED);
             transaction.setCompletedAt(LocalDateTime.now());
-            paymentStatus[0] = PaymentStatus.SUCCESS;
+            builder.paymentStatus(PaymentStatus.SUCCESS);
         } catch (PaymentFailedException ex) {
+            builder.paymentStatus(PaymentStatus.FAILED);
             transaction.setStatus(TransactionStatus.FAILED);
             transaction.setCompletedAt(LocalDateTime.now());
-            paymentStatus[0] = PaymentStatus.FAILED;
         }
-        publishPaymentEventAfterProcessing(paymentStatus);
+        publishPaymentEventAfterProcessing(builder.build());
     }
 
     // This will only be called if the transaction above is successfully committed
-    private void publishPaymentEventAfterProcessing(PaymentStatus[] paymentStatus) {
+    private void publishPaymentEventAfterProcessing(PaymentCompletionEvent event) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                paymentEventPublisher.sendPaymentCompletionEvent(
-                        PaymentCompletionEvent.builder()
-                                .paymentStatus(paymentStatus[0])
-                                .build());
+                paymentEventPublisher.sendPaymentCompletionEvent(event);
             }
         });
     }
