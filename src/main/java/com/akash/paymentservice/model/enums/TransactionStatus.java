@@ -1,5 +1,5 @@
 package com.akash.paymentservice.model.enums;
 
-public enum PaymentStatus {
+public enum TransactionStatus {
     PROCESSING, COMPLETED, FAILED
 }
