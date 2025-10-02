@@ -10,6 +10,9 @@ import com.akash.paymentservice.model.enums.TransactionStatus;
 import com.akash.paymentservice.repository.TransactionRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -22,6 +25,7 @@ public class PaymentService {
     private final PaymentProcessorService paymentProcessorService;
     private final PaymentEventPublisher paymentEventPublisher;
 
+    @Transactional
     public void processPayment(OrderCreatedEvent orderCreatedEvent) {
         Transaction transaction = Transaction.builder()
                 .transactionId(UUID.randomUUID())
@@ -33,20 +37,31 @@ public class PaymentService {
                 .paymentMode(orderCreatedEvent.getPaymentMode())
                 .build();
         transactionRepository.save(transaction);
+        PaymentStatus[] paymentStatus = new PaymentStatus[1];
         try {
             paymentProcessorService.processPayment(transaction.getTransactionId(),
                     transaction.getAmount(), orderCreatedEvent.getPaymentMode());
             transaction.setStatus(TransactionStatus.COMPLETED);
             transaction.setCompletedAt(LocalDateTime.now());
-            paymentEventPublisher.sendPaymentCompletionEvent(PaymentCompletionEvent.builder()
-                    .paymentStatus(PaymentStatus.SUCCESS)
-                    .build());
+            paymentStatus[0] = PaymentStatus.SUCCESS;
         } catch (PaymentFailedException ex) {
             transaction.setStatus(TransactionStatus.FAILED);
             transaction.setCompletedAt(LocalDateTime.now());
-            paymentEventPublisher.sendPaymentCompletionEvent(PaymentCompletionEvent.builder()
-                    .paymentStatus(PaymentStatus.FAILED)
-                    .build());
+            paymentStatus[0] = PaymentStatus.FAILED;
         }
+        publishPaymentEventAfterProcessing(paymentStatus);
+    }
+
+    // This will only be called if the transaction above is successfully committed
+    private void publishPaymentEventAfterProcessing(PaymentStatus[] paymentStatus) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                paymentEventPublisher.sendPaymentCompletionEvent(
+                        PaymentCompletionEvent.builder()
+                                .paymentStatus(paymentStatus[0])
+                                .build());
+            }
+        });
     }
 }

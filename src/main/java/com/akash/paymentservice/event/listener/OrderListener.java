@@ -24,19 +24,23 @@ public class OrderListener {
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void consume(ConsumerRecord<String, OrderCreatedEvent> record) {
-        String correlationId = null;
-        if (record.headers().lastHeader("x-correlation-id") != null) {
-            correlationId = new String(record.headers()
-                    .lastHeader("x-correlation-id")
-                    .value(), StandardCharsets.UTF_8);
-        }
+        handleMDC(record);
         try {
-            MDC.put("x-correlation-id", correlationId);
+
             log.info("Order created event received: {}", record.value());
             paymentService.processPayment(record.value());
             log.info("Order created event processed");
         } finally {
             MDC.clear();
+        }
+    }
+
+    private static void handleMDC(ConsumerRecord<String, OrderCreatedEvent> record) {
+        if (record.headers().lastHeader("x-correlation-id") != null) {
+            String correlationId = new String(record.headers()
+                    .lastHeader("x-correlation-id")
+                    .value(), StandardCharsets.UTF_8);
+            MDC.put("x-correlation-id", correlationId);
         }
     }
 }
