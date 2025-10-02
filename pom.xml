@@ -79,7 +79,7 @@
         </dependency>
         <dependency>
             <groupId>com.akash</groupId>
-            <artifactId>kafka-event-dto</artifactId>
+            <artifactId>event-dto</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
