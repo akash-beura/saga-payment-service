@@ -31,7 +31,7 @@ public class PaymentEventPublisher {
                 correlationId = UUID.randomUUID().toString();
             }
             record.headers().add(CORRELATION_ID_HEADER, correlationId.getBytes(StandardCharsets.UTF_8));
-            kafkaTemplate.send(topicName, event);
+            kafkaTemplate.send(record);
             log.info("Published PaymentEvent to topic: {} --> {}", topicName, event);
         } finally {
             MDC.clear();
