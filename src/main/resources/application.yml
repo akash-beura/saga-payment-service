@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: payment-service        # must match the YAML in Git repo
+  profiles:
+    active: dev                  # this tells config server which profile file to fetch
+  config:
+    import: "optional:configserver:http://localhost:8888"
