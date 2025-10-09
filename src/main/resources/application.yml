@@ -5,3 +5,8 @@ spring:
     active: dev                  # this tells config server which profile file to fetch
   config:
     import: "optional:configserver:http://localhost:8888"
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
